@@ -1,0 +1,50 @@
+{% extends 'tests/base.html' %}
+
+{% block content %}
+dashboard
+
+<h2>Page Context: {{ page_context }}</h2>
+
+<h2>Static/Media</h2>
+<ul>
+  <li>Static: {{ STATIC_URL }}</li>
+  <li>Media: {{ MEDIA_URL }}</li>
+</ul>
+
+<h2>Ajax Urls</h2>
+<table class="table table-condensed">
+  <thead>
+  <tr>
+    <td>Name</td>
+    <td>Title</td>
+    <td>URL</td>
+  </tr>
+  </thead>
+  <tbody>
+    {% for name, view in panels.items %}
+    <tr>
+      <td>{{ name }}</td>
+      <td>{{ view.title }}</td>
+      <td><a href="{{ view.get_url }}">{{ view.get_url }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Ajax Loaded Views</h2>
+{% for name, view in panels.items %}
+<div class="ajax-view" data-url="{{ view.get_url }}"></div>
+{% endfor %}
+
+
+<h2>Rendered Views</h2>
+{% for name, view in panels.items %}
+{{ view.content }}
+{% endfor %}
+
+<h2>View accessed/rendered by Id</h2>
+{{ views.view1.content }}
+{{ views.view2.content }}
+{{ views.view3.content }}
+{% endblock %}
+

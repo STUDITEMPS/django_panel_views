@@ -1,0 +1,19 @@
+<div class="panel panel-default">
+  <div class="panel-heading">{{ self.name }}: {{ self.title }}</div>
+  <div class="panel-body">
+
+    <p>Csrf-token: {{ csrf_token}}</p>
+    <form action="{{ self.get_url }}" method="post" novalidate>
+    {% csrf_token %}
+    {{ form.media }}
+    {% for field in form %}
+    <div class="form-group">
+      <label for="exampleInputEmail1">{{ field.label }}</label>
+      {{ field }}
+    </div>
+    {% endfor %}
+
+    <input type="submit">
+  </form>
+  </div>
+</div>
