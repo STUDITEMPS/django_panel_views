@@ -16,7 +16,6 @@ PANEL_IDENTIFIER = 'panel'
 
 
 class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)):
-    template_name_suffix = '_panelview'
     panels = {}
     url = None
 
@@ -108,19 +107,17 @@ class Panel(six.with_metaclass(DeclarativeFieldsMetaclass, ContextMixin)):
             self.name
         )
 
-    def get_template(self, **kwargs):
+    def get_template_name(self, **kwargs):
         if hasattr(self, 'template_name'):
             return self.template_name
         view_template = self.view.get_template_names()[0]
-        return view_template.replace(
-            self.view.template_name_suffix,
-            self.template_name_suffix
-        )
+        return u'/'.join(view_template.split(u'/')[:-1]) \
+            + '/{}.html'.format(self.template_name_suffix)
 
     def content(self, *args, **kwargs):
         self.context.update(self.get_context_data(*args, **kwargs))
-        template = self.get_template(**kwargs)
-        return loader.get_template(self.template_name).render(
+        template_name = self.get_template_name(**kwargs)
+        return loader.get_template(template_name).render(
             RequestContext(self.request, self.context)
             # self.context
         )
@@ -129,4 +126,4 @@ class Panel(six.with_metaclass(DeclarativeFieldsMetaclass, ContextMixin)):
         return HttpResponse(self.content())
 
     def post(self, request, *args, **kwargs):
-        raise NotImplementedError('This function is not implemented now')
+        raise NotImplementedError('This function is not implemented now') # pragma: no cover

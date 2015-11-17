@@ -35,7 +35,6 @@ class DashboardView1(Panel):
 
 class DashboardView2(Panel):
     title=u"Übersichts-Seite 2"
-    template_name = 'tests/view2.html'
 
 
 class FormView(Panel):
@@ -67,6 +66,12 @@ class DashboardPage(BasePanelView):
         return {'page_context': 'content of page_context'}
 
 
+class ErrorPage(BasePanelView):
+    template_name = "tests/dashboard.html"
+    panels = {
+        12313: DashboardView1,
+    }
+
 class LoginDashboardPage(BasePanelView):
     template_name = "tests/dashboard.html"
 
@@ -92,6 +97,13 @@ class PageViewTestCase(LiveServerTestCase):
             '/test/?{}=panel3'.format(PANEL_IDENTIFIER),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
+
+    def test_panel_name_validation(self):
+        self.assertRaises(ValueError, ErrorPage)
+        try:
+            DashboardPage()
+        except ValueError:
+            self.fail('DashboardPage raises ValueError on initialization')
 
     def test_dashboard_inherit(self):
         self.assertTrue('base.html' in self.page.content)
