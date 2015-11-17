@@ -4,11 +4,11 @@
 from django.test import LiveServerTestCase
 from django.test import Client
 from django import forms
-from django.views.generic.edit import FormMixin
 from django.http import JsonResponse
 
 from panelviews.views import BasePanelView
 from panelviews.views import Panel
+from panelviews.views import PANEL_IDENTIFIER
 
 
 class NameForm(forms.Form):
@@ -20,6 +20,13 @@ class NameForm(forms.Form):
 
 
 class DashboardView1(Panel):
+    title=u"Übersichts-Seite"
+    template_name='tests/view1.html'
+
+    class Media:
+        js = ('panelviews/js/test.js', )
+        css = {'all': ('panelviews/css/test.css', )}
+
     def get_context_data(self):
         return {
             'additional_context': 'this is a content of additional_context'
@@ -27,11 +34,13 @@ class DashboardView1(Panel):
 
 
 class DashboardView2(Panel):
+    title=u"Übersichts-Seite 2"
     template_name = 'tests/view2.html'
 
 
-class FormView(Panel, FormMixin):
+class FormView(Panel):
     form_class = NameForm
+    template_name='tests/view3.html'
 
     def get_context_data(self, *args, **kwargs):
         context = super(FormView, self).get_context_data(**kwargs)
@@ -46,26 +55,16 @@ class FormView(Panel, FormMixin):
         form.is_valid()
         return JsonResponse({'errors': form.errors})
 
-
 class DashboardPage(BasePanelView):
-    def __init__(self, *args, **kwargs):
-        view1 = DashboardView1(
-            page=self,
-            template_name='tests/view1.html',
-            title=u"Übersichts-Seite"
-        )
-        view2 = DashboardView2(page=self, title=u"Übersichts-Seite 2")
-        view3 = FormView(page=self, template_name='tests/view3.html')
-
-        super(DashboardPage, self).__init__(
-            template_name="tests/dashboard.html",
-            panels={'view1': view1, 'view2': view2, 'view3': view3}
-        )
+    template_name = "tests/dashboard.html"
+    panels = {
+        'panel1': DashboardView1,
+        'panel2': DashboardView2,
+        'panel3': FormView,
+    }
 
     def get_context_data(self, *args, **kwargs):
-        return {
-            'page_context': 'content of page_context'
-        }
+        return {'page_context': 'content of page_context'}
 
 
 class LoginDashboardPage(BasePanelView):
@@ -81,16 +80,16 @@ class PageViewTestCase(LiveServerTestCase):
         self.client = Client()
         self.url = "/test/"
         self.page = self.client.get('/test/')
-        self.view1_resp = self.client.get(
-            '/test/?view=view1',
+        self.panel1_resp = self.client.get(
+            '/test/?{}=panel1'.format(PANEL_IDENTIFIER),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
-        self.view2_resp = self.client.get(
-            '/test/?view=view2',
+        self.panel2_resp = self.client.get(
+            '/test/?{}=panel2'.format(PANEL_IDENTIFIER),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
-        self.view3_resp = self.client.get(
-            '/test/?view=view3',
+        self.panel3_resp = self.client.get(
+            '/test/?{}=panel3'.format(PANEL_IDENTIFIER),
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
 
@@ -98,6 +97,10 @@ class PageViewTestCase(LiveServerTestCase):
         self.assertTrue('base.html' in self.page.content)
         # Dashboard
         self.assertTrue('dashboard' in self.page.content)
+
+    def test_collected_panel_media(self):
+        self.assertTrue('test.js' in self.page.content)
+        self.assertTrue('test.css' in self.page.content)
 
     def test_page_post_not_supported(self):
         resp = self.client.post('/test/', {})
@@ -109,9 +112,9 @@ class PageViewTestCase(LiveServerTestCase):
 
     def test_page_view_urls(self):
         # views urls
-        self.assertTrue('?view=view1' in self.page.content)
-        self.assertTrue('?view=view2' in self.page.content)
-        self.assertTrue('?view=view3' in self.page.content)
+        self.assertTrue('?{}=panel1'.format(PANEL_IDENTIFIER) in self.page.content)
+        self.assertTrue('?{}=panel2'.format(PANEL_IDENTIFIER) in self.page.content)
+        self.assertTrue('?{}=panel3'.format(PANEL_IDENTIFIER) in self.page.content)
 
     def test_page_context(self):
         # views rendered content
@@ -119,12 +122,12 @@ class PageViewTestCase(LiveServerTestCase):
 
     def test_view_rendered(self):
         # views rendered content
-        self.assertTrue('view1' in self.page.content)
-        self.assertTrue('view2' in self.page.content)
-        self.assertTrue('view3' in self.page.content)
+        self.assertTrue('panel1' in self.page.content)
+        self.assertTrue('panel2' in self.page.content)
+        self.assertTrue('panel3' in self.page.content)
 
     def test_page_view_context(self):
-        # views rendered content
+        # panels rendered content
         self.assertTrue('additional_context' in self.page.content)
 
     def test_page_static_url_available(self):
@@ -133,43 +136,43 @@ class PageViewTestCase(LiveServerTestCase):
     def test_page_media_url_available(self):
         self.assertTrue('/media/' in self.page.content)
 
-    def test_ajax_view(self):
-        self.assertTrue('additional_context' in self.view1_resp.content)
+    def test_panel_view(self):
+        self.assertTrue('additional_context' in self.panel1_resp.content)
 
-    def test_view_call(self):
-        resp = self.client.get('/test/?view=view1')
+    def test_panel_call(self):
+        resp = self.client.get('/test/?{}=panel1'.format(PANEL_IDENTIFIER))
         self.assertEqual(resp.status_code, 400)
 
-        self.assertEqual(self.view1_resp.status_code, 200)
-        self.assertTrue('view1' in self.view1_resp.content)
-        self.assertTrue('view2' in self.view2_resp.content)
-        self.assertTrue('view3' in self.view3_resp.content)
+        self.assertEqual(self.panel1_resp.status_code, 200)
+        self.assertTrue('panel1' in self.panel1_resp.content)
+        self.assertTrue('panel2' in self.panel2_resp.content)
+        self.assertTrue('panel3' in self.panel3_resp.content)
 
-    def test_view_unicode_rendered(self):
-        content = self.view1_resp.content.decode("utf-8")
+    def test_panel_unicode_rendered(self):
+        content = self.panel1_resp.content.decode("utf-8")
         self.assertTrue(u"öäüß" in content)
 
-    def test_view2_media_static(self):
+    def test_panel2_media_static(self):
         # Media is available
-        self.assertTrue('/static/' in self.view2_resp.content)
+        self.assertTrue('/static/' in self.panel2_resp.content)
         # Media is available
-        self.assertTrue('/media/' in self.view2_resp.content)
+        # self.assertTrue('/media/' in self.panel2_resp.content)
 
-    def test_view3_csrftoken(self):
-        self.assertTrue('csrfmiddlewaretoken' in self.view3_resp.content)
+    def test_panel3_csrftoken(self):
+        self.assertTrue('csrfmiddlewaretoken' in self.panel3_resp.content)
 
-    def test_view3_form_media(self):
+    def test_panel3_form_media(self):
         static_url = '/static/panelviews/js/bootstrap.min.js'
-        self.assertTrue(static_url in self.view3_resp.content)
+        self.assertTrue(static_url in self.panel3_resp.content)
 
-    def test_view_post_bad_request(self):
-        resp = self.client.post('/test/?view=view3', {})
+    def test_panel_post_bad_request(self):
+        resp = self.client.post('/test/?{}=panel3'.format(PANEL_IDENTIFIER), {})
         self.assertEqual(resp.status_code, 400)
 
-    def test_view_post(self):
-        # Post on a view
+    def test_panel_post(self):
+        # Post on a panel
         resp = self.client.post(
-            '/test/?view=view3',
+            '/test/?{}=panel3'.format(PANEL_IDENTIFIER),
             {},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
@@ -177,7 +180,7 @@ class PageViewTestCase(LiveServerTestCase):
         self.assertTrue('email' in resp.content)
 
         resp = self.client.post(
-            '/test/?view=view3',
+            '/test/?{}=panel3'.format(PANEL_IDENTIFIER),
             {'email': 'invalid'},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )

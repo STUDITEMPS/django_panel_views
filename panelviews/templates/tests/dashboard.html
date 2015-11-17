@@ -21,25 +21,25 @@ dashboard
   </tr>
   </thead>
   <tbody>
-    {% for name, view in panels.items %}
+    {% for name, panel in view.panels.items %}
     <tr>
       <td>{{ name }}</td>
-      <td>{{ view.title }}</td>
-      <td><a href="{{ view.get_url }}">{{ view.get_url }}</a></td>
+      <td>{{ panel.title }}</td>
+      <td><a href="{{ panel.get_url }}">{{ panel.get_url }}</a></td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
 <h2>Ajax Loaded Views</h2>
-{% for name, view in panels.items %}
-<div class="ajax-view" data-url="{{ view.get_url }}"></div>
+{% for name, panel in view.panels.items %}
+<div class="ajax-view" data-url="{{ panel.get_url }}"></div>
 {% endfor %}
 
 
 <h2>Rendered Views</h2>
-{% for name, view in panels.items %}
-{{ view.content }}
+{% for name, panel in view.panels.items %}
+{{ panel.content }}
 {% endfor %}
 
 <h2>View accessed/rendered by Id</h2>
