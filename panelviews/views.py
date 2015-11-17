@@ -41,7 +41,13 @@ class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)
     def __setup_panels(self, request):
         panels = {}
         for name, panel_class in self.panels.items():
-            panel = panel_class(self, name)
+            try:
+                panel = panel_class(self, name)
+            except TypeError:
+                raise ValueError(
+                    'Tab must be instance of Panel. found %s'
+                    % panel_class
+                )
             if not isinstance(panel, Panel):
                 raise ValueError(
                     'Tab must be instance of Panel. found %s'

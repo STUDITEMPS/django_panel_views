@@ -66,10 +66,30 @@ class DashboardPage(BasePanelView):
         return {'page_context': 'content of page_context'}
 
 
+
+class NotPanelClass1(object):
+    pass
+
+class NotPanelClass2(object):
+    def __init__(self, view, name):
+        pass
+
 class ErrorPage(BasePanelView):
     template_name = "tests/dashboard.html"
     panels = {
         12313: DashboardView1,
+    }
+
+class ErrorPage2(BasePanelView):
+    template_name = "tests/dashboard.html"
+    panels = {
+        'identifier': NotPanelClass1,
+    }
+
+class ErrorPage3(BasePanelView):
+    template_name = "tests/dashboard.html"
+    panels = {
+        'identifier': NotPanelClass2,
     }
 
 class LoginDashboardPage(BasePanelView):
@@ -100,6 +120,10 @@ class PageViewTestCase(LiveServerTestCase):
 
     def test_panel_name_validation(self):
         self.assertRaises(ValueError, ErrorPage)
+
+        self.assertRaises(ValueError, ErrorPage2().get, 'afawf')
+        self.assertRaises(ValueError, ErrorPage3().get, 'awfwf')
+
         try:
             DashboardPage()
         except ValueError:
