@@ -38,7 +38,7 @@ class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)
                 )
         self.context = {'view': self,}
 
-    def __setup_panels(self, request):
+    def _setup_panels(self, request):
         panels = {}
         for name, panel_class in self.panels.items():
             try:
@@ -53,8 +53,9 @@ class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)
                     'Tab must be instance of Panel. found %s'
                     % panel.__class__
                 )
-            panel.set_up(request)
-            panels[panel.name] = panel
+            if panel.is_available(self, request):
+                panel.set_up(request)
+                panels[panel.name] = panel
         self.panels = panels
         self.url = request.path
 
@@ -62,7 +63,7 @@ class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)
         return self.url
 
     def get(self, request, *args, **kwargs):
-        self.__setup_panels(request)
+        self._setup_panels(request)
         self.request = request
         panel_name = request.GET.get(PANEL_IDENTIFIER, None)
         if panel_name and panel_name in self.panels.keys():
@@ -75,7 +76,7 @@ class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)
         return self.render_to_response(self.context)
 
     def post(self, request, *args, **kwargs):
-        self.__setup_panels(request)
+        self._setup_panels(request)
         panel_name = request.GET.get(PANEL_IDENTIFIER, None)
         if panel_name and panel_name in self.panels.keys():
             if not request.is_ajax():
@@ -133,3 +134,6 @@ class Panel(six.with_metaclass(DeclarativeFieldsMetaclass, ContextMixin)):
 
     def post(self, request, *args, **kwargs):
         raise NotImplementedError('This function is not implemented now') # pragma: no cover
+
+    def is_available(self, view, request):
+        return True

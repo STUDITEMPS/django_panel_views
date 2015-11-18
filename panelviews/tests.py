@@ -6,6 +6,8 @@ from django.test import Client
 from django import forms
 from django.http import JsonResponse
 
+from django.views.generic.edit import FormView
+
 from panelviews.views import BasePanelView
 from panelviews.views import Panel
 from panelviews.views import PANEL_IDENTIFIER
@@ -37,7 +39,7 @@ class DashboardView2(Panel):
     title=u"Übersichts-Seite 2"
 
 
-class FormView(Panel):
+class FormView(FormView, Panel):
     form_class = NameForm
     template_name='tests/view3.html'
 
