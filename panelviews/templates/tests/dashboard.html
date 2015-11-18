@@ -43,8 +43,9 @@ dashboard
 {% endfor %}
 
 <h2>View accessed/rendered by Id</h2>
-{{ views.view1.content }}
-{{ views.view2.content }}
-{{ views.view3.content }}
+    DIRECT:{{ view.panel1 }}
+    DIRECT:{{ view.panel2 }}
+    DIRECT:{{ view.panel3 }}
+    The following should be empty *****{{ view.invalid_name }}*****
 {% endblock %}
 

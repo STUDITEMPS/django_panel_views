@@ -84,6 +84,31 @@ class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)
             return self.panels[panel_name].post(request, *args, **kwargs)
         return HttpResponseBadRequest("This View does not support POST")
 
+    def __getitem__(self, item):
+        """
+        We do this to enable DjangoForms like behaviour:
+
+          * {{ view.<item> }}
+              will return rendered panel in template
+              if item a available panel in view not a attribute of view.
+          * {% for name, panel in view.panels.items %}
+              will still work as excepted
+          * {{ view.<item>.title }}
+              returns panels title if item is panel.name
+
+        This should make panels available ehile template rendering in a very
+        flexible way.
+        """
+
+        attribute = getattr(self, item, None)
+        if attribute is not None:
+            return attribute
+        if item in self.panels:
+            return self.panels[item]
+        raise KeyError(
+            "'{}' not neigher Panel nor attribute of PanelBaseView".format(item)
+        )
+
 
     def base_context_data(self):
         return {}
@@ -128,6 +153,9 @@ class Panel(six.with_metaclass(DeclarativeFieldsMetaclass, ContextMixin)):
             RequestContext(self.request, self.context)
             # self.context
         )
+
+    def __unicode__(self):
+        return self.content()
 
     def get(self, request, *args, **kwargs):
         return HttpResponse(self.content())

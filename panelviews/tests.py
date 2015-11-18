@@ -226,3 +226,9 @@ class PageViewTestCase(LiveServerTestCase):
     def test_user_not_logged_in(self):
         resp = self.client.get('/test-login-required/')
         self.assertEqual(resp.status_code, 302)
+
+    def test_rendering_per_unicode(self):
+        direct_rendered = self.page.content.split('DIRECT:')[1]
+        self.assertTrue("panel1: " in direct_rendered)
+        direct_rendered = self.page.content.split('*****')[1]
+        self.assertTrue(direct_rendered == '')
