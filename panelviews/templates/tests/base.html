@@ -1,0 +1,29 @@
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static "panelviews/css/bootstrap.min.css" %}"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    {{ view.media }}
+  </head>
+
+  <div class="container theme-showcase" role="main">
+    <p>base.html</p>
+    {% block content %}{% endblock %}
+  </div>
+
+
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="{{ STATIC_URL }}panelviews/js/bootstrap.min.js"></script>
+  <script>
+  $(function () {
+    $('.ajax-view').each(function () {
+      $this = $(this);
+      $this.load($this.data('url'));
+    });
+  });
+  </script>
+
+</html>

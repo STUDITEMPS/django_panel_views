@@ -1,0 +1,51 @@
+{% extends 'tests/base.html' %}
+
+{% block content %}
+dashboard
+
+<h2>Page Context: {{ page_context }}</h2>
+
+<h2>Static/Media</h2>
+<ul>
+  <li>Static: {{ STATIC_URL }}</li>
+  <li>Media: {{ MEDIA_URL }}</li>
+</ul>
+
+<h2>Ajax Urls</h2>
+<table class="table table-condensed">
+  <thead>
+  <tr>
+    <td>Name</td>
+    <td>Title</td>
+    <td>URL</td>
+  </tr>
+  </thead>
+  <tbody>
+    {% for name, panel in view.panels.items %}
+    <tr>
+      <td>{{ name }}</td>
+      <td>{{ panel.title }}</td>
+      <td><a href="{{ panel.get_url }}">{{ panel.get_url }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Ajax Loaded Views</h2>
+{% for name, panel in view.panels.items %}
+<div class="ajax-view" data-url="{{ panel.get_url }}"></div>
+{% endfor %}
+
+
+<h2>Rendered Views</h2>
+{% for name, panel in view.panels.items %}
+{{ panel.content }}
+{% endfor %}
+
+<h2>View accessed/rendered by Id</h2>
+    DIRECT:{{ view.panel1 }}
+    DIRECT:{{ view.panel2 }}
+    DIRECT:{{ view.panel3 }}
+    The following should be empty *****{{ view.invalid_name }}*****
+{% endblock %}
+
