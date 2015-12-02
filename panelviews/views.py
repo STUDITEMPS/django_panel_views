@@ -36,7 +36,7 @@ class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)
                 raise ValueError(
                     u'panel name must be string not {}'.format(name.__class__)
                 )
-        self.context = {'view': self,}
+        self.context = {'view': self, }
 
     def _setup_panels(self, request):
         panels = {}
@@ -109,9 +109,9 @@ class BasePanelView(six.with_metaclass(DeclarativeFieldsMetaclass, TemplateView)
             "'{}' not neigher Panel nor attribute of PanelBaseView".format(item)
         )
 
-
     def base_context_data(self):
         return {}
+
 
 class Panel(six.with_metaclass(DeclarativeFieldsMetaclass, ContextMixin)):
     title = 'title'

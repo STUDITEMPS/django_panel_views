@@ -2,10 +2,18 @@
   <div class="panel-heading">{{ panel.name }}: {{ panel.title }}</div>
   <div class="panel-body">
 
-    <p>Csrf-token: {{ csrf_token}}</p>
     <form action="{{ panel.get_url }}" method="post" novalidate>
     {% csrf_token %}
     {{ form.media }}
+
+
+    <h4>Form-Media</h4>
+    <pre>{{ form.media|force_escape }}</pre>
+
+    <h4>CSRF-Token</h4>
+    <pre>{{ csrf_token }}</pre>
+
+    <h4>Form-Fields</h4>
     {% for field in form %}
     <div class="form-group">
       <label for="exampleInputEmail1">{{ field.label }}</label>
