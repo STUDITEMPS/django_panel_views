@@ -10,12 +10,18 @@
 
   <div class="container theme-showcase" role="main">
     <p>base.html</p>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">View-Media</div>
+      <div class="panel-body">
+        <pre>{{ view.media|force_escape }}</pre>
+      </div>
+    </div>
+
+
     {% block content %}{% endblock %}
   </div>
 
-
-
-  <!-- Latest compiled and minified JavaScript -->
   <script src="{{ STATIC_URL }}panelviews/js/bootstrap.min.js"></script>
   <script>
   $(function () {

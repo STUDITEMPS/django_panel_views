@@ -20,8 +20,8 @@ class NameForm(forms.Form):
 
 
 class DashboardView1(Panel):
-    title=u"Übersichts-Seite"
-    template_name='tests/view1.html'
+    title = u"Übersichts-Seite"
+    template_name = 'tests/view1.html'
 
     class Media:
         js = ('panelviews/js/test.js', )
@@ -34,12 +34,12 @@ class DashboardView1(Panel):
 
 
 class DashboardView2(Panel):
-    title=u"Übersichts-Seite 2"
+    title = u"Übersichts-Seite 2"
 
 
 class FormView(Panel):
     form_class = NameForm
-    template_name='tests/view3.html'
+    template_name = 'tests/view3.html'
 
     def get_context_data(self, *args, **kwargs):
         context = super(FormView, self).get_context_data(**kwargs)
@@ -54,6 +54,7 @@ class FormView(Panel):
         form.is_valid()
         return JsonResponse({'errors': form.errors})
 
+
 class DashboardPage(BasePanelView):
     template_name = "tests/dashboard.html"
     panels = {
@@ -66,13 +67,14 @@ class DashboardPage(BasePanelView):
         return {'page_context': 'content of page_context'}
 
 
-
 class NotPanelClass1(object):
     pass
+
 
 class NotPanelClass2(object):
     def __init__(self, view, name):
         pass
+
 
 class ErrorPage(BasePanelView):
     template_name = "tests/dashboard.html"
@@ -80,17 +82,20 @@ class ErrorPage(BasePanelView):
         12313: DashboardView1,
     }
 
+
 class ErrorPage2(BasePanelView):
     template_name = "tests/dashboard.html"
     panels = {
         'identifier': NotPanelClass1,
     }
 
+
 class ErrorPage3(BasePanelView):
     template_name = "tests/dashboard.html"
     panels = {
         'identifier': NotPanelClass2,
     }
+
 
 class LoginDashboardPage(BasePanelView):
     template_name = "tests/dashboard.html"
