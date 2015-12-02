@@ -76,6 +76,12 @@ Panel-Ajax-Url can be accessed via **get_url**
 Render panel directly without to use ajax
 
     {{ view.panels.panel1.content }}
+    # or
+    {{ view.panel1.content }}
+
+Accessing PanelView from Panel
+
+    {{ panel.view.VIEW_ATTR }}
 
 
 **For detail examples see test.py and test/tempates**
